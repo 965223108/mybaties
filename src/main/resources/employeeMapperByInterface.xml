@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dao.EmployeeMapper">
+    <!--
+    resutlType:  mybatis会按照给定的类型自动封装查询到的结果集（要求是数据库中的字段跟Javabean中的属性是一一对应的，否则就封装不成功）
+    resultMap: 这种方式可以让用户自定义封装返回的结果集
+    -->
+    <!--可以通过级联属性的方式来赋值-->
+    <resultMap id="myEmp" type="com.beans.Employee">
+        <id column="id" property="id"></id><!--自定义主键属性-->
+        <result column="lastName" property="lastName"></result><!--普通字段封装,另外 如果其他的不写的话 默认是返回结果集中的字段跟Javabean中的属性一一对应-->
+        <result column="email" property="email"></result>
+        <result column="gender" property="gender"></result>
+        <result column="dId" property="dId"></result>
+        <result column="dId" property="department.id"></result>
+        <result column="departmentName" property="department.departmentName"></result>
+    </resultMap>
+    <select id="getEmployeeById3" resultMap="myEmp">
+        select e.id as id,e.lastName as lastName,e.email as email,e.gender as gender,e.dId as dId,d.departmentName as departmentName
+        from Employee e,Department d
+        where e.dId = d.id
+   </select>
+    <!--除了级联属性之外，还可以通过association 的方式封装Javabean对象中的对象-->
+    <resultMap id="myEmp_association" type="com.beans.Employee">
+        <id column="id" property="id"></id><!--自定义主键属性-->
+        <result column="lastName" property="lastName"></result><!--普通字段封装,另外 如果其他的不写的话 默认是返回结果集中的字段跟Javabean中的属性一一对应-->
+        <result column="email" property="email"></result>
+        <result column="gender" property="gender"></result>
+        <result column="dId" property="dId"></result>
+        <association property="department" javaType="com.beans.Department">
+            <id column="dId" property="id"></id>
+            <result column="departmentName" property="departmentName"></result>
+        </association>
+    </resultMap>
+    <select id="getEmployeeById4" resultMap="myEmp_association">
+        select e.id as id,e.lastName as lastName,e.email as email,e.gender as gender,e.dId as dId,d.departmentName as departmentName
+        from Employee e,Department d
+        where e.dId = d.id
+   </select>
+    <!--association 还可以采用分布查询的方式,且支持延迟加载（需要在全局配置文件中写两个配置：lazyLoadingEnable=true  aggressiveLazyLoading=false）
+      select: 指定要调用的sql语句
+      column：指定给调用的sql语句传递的参数 也可以使用{key = value，key2 = value2的方式传递多个参数
+      fetchType: 设置是否启动延时加载的功能
+      -->
+    <resultMap id="myEmp_association_step" type="com.beans.Employee">
+        <id column="id" property="id"></id><!--自定义主键属性-->
+        <result column="lastName" property="lastName"></result><!--普通字段封装,另外 如果其他的不写的话 默认是返回结果集中的字段跟Javabean中的属性一一对应-->
+        <result column="email" property="email"></result>
+        <result column="gender" property="gender"></result>
+        <result column="dId" property="dId"></result>
+        <association property="department" select="com.dao.DepartmentMapper.getDepartmentById" column="{dId = dId}" fetchType="lazy"></association>
+    </resultMap>
+    <!--鉴别器：
+        根据字段的内容执行不同的SQL语句并封装结果
+    -->
+    <resultMap id="myEmp_association_discriminatory" type="com.beans.Employee">
+        <id column="id" property="id"></id><!--自定义主键属性-->
+        <result column="lastName" property="lastName"></result><!--普通字段封装,另外 如果其他的不写的话 默认是返回结果集中的字段跟Javabean中的属性一一对应-->
+        <result column="email" property="email"></result>
+        <result column="gender" property="gender"></result>
+        <result column="dId" property="dId"></result>
+        <discriminator javaType="string" column="gender">
+            <case value="0" resultType="com.beans.Employee">
+                <association property="department" select="com.dao.DepartmentMapper.getDepartmentById" column="{dId = dId}" fetchType="lazy"></association>
+            </case>
+            <case value="1" resultType="com.beans.Employee">
+                <id column="id" property="id"></id>
+                <result  column="lastName" property="lastName"></result>
+            </case>
+        </discriminator>
+    </resultMap>
+    <select id="getEmployeeById" resultMap="myEmp_association_step">
+        select * from Employee where id = #{id}
+   </select>
+    <select id="getEmployeeById2" resultType="com.beans.Employee">
+        select * from Employee where id = #{id}
+   </select>
+    <insert id="addEmployee" parameterType="com.beans.Employee" keyProperty="id" useGeneratedKeys="true" >
+        insert into Employee(lastName,email,gender,dId) values (#{lastName},#{email},#{gender},#{dId})
+    </insert>
+
+</mapper>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.beans.EmployeeDynamic">
+    <!--
+        动态SQL：
+        if:
+        choose(where,otherwise)
+        trim(where,set)
+        foreach
+    -->
+   <!---查询员工，要求携带了哪个字段，哪个字段查询 条件就带上这个
+     test 条件使用OGNL语法，详情百度
+     如果id字段没有带过来，则可能报SQL错误，解决办法：两种
+   -->
+    <select id="getEmployeeByConditionIF2" resultType="com.beans.Employee">
+        select * from Employee where 1=1
+        <if test="id!=null">
+            and id = #{id}
+        </if>
+        <if test="lastName != null and lastName != &quot;&quot;">
+            and lastName = #{lastName}
+        </if>
+        <if test="email != null and email.trim() != &quot;&quot;">
+            and  email = #{email}
+        </if>
+        <if test="gender == 0 or gender == 1">
+            and gender = #{gender}
+        </if>
+    </select>
+    <!--第二种方式
+      where 只能去掉前面多余的字段  如果and 放在后边就不能用了
+    -->
+    <select id="getEmployeeByConditionIF" resultType="com.beans.Employee">
+        select * from Employee
+        <where>
+            <if test="id!=null">
+                and id = #{id}
+            </if>
+            <if test="lastName != null and lastName != &quot;&quot;">
+                and lastName = #{lastName}
+            </if>
+            <if test="email != null and email.trim() != &quot;&quot;">
+                and  email = #{email}
+            </if>
+            <if test="gender == 0 or gender == 1">
+                and gender = #{gender}
+            </if>
+        </where>
+    </select>
+    <!-- trim 标签：
+    字符串截取： 处理SQL语句中多余的语句
+    Profix： trim标签中是整个字符串后加一个前缀
+    prefixOverrides： 前缀覆盖
+    suffix: 添加后缀
+    suffixOverrides: 覆盖后缀
+    -->
+    <select id="getEmployeeByConditionTrim" resultType="com.beans.Employee">
+        select * from Employee
+        <trim prefix="where" suffixOverrides="and">
+            <if test="id!=null">
+                 id = #{id} and
+            </if>
+            <if test="lastName != null and lastName != &quot;&quot;">
+                 lastName = #{lastName} and
+            </if>
+            <if test="email != null and email.trim() != &quot;&quot;">
+                  email = #{email} and
+            </if>
+            <if test="gender == 0 or gender == 1">
+                 gender = #{gender} and
+            </if>
+        </trim>
+    </select>
+    <!--choose 分支测试,分支查询，只会进入一个分支-->
+    <select id="getEmployeeByConditionChoose" resultType="com.beans.Employee">
+        select * from Employee
+        <where>
+            <choose>
+                <when test="id!=null">
+                    id = #{id}
+                </when>
+                <when test="lastName != null">
+                    and lastName = #{lastName}
+                </when>
+                <when test="email !=null">
+                    and  email = #{email}
+                </when>
+                <otherwise>
+                    1 = 1
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+    <!--字段跟新-->
+    <update id="updateEmployee">
+        update Employee
+        <set>
+            <if test="lastName!=null">
+                lastName = #{lastName},
+            </if>
+            <if test="gender != null">
+                gender = #{gender},
+            </if>
+            <if test="email!=null">
+                email = #{email},
+            </if>
+        </set>
+        where  id = #{id}
+    </update>
+</mapper>

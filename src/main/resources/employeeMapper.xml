@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mybatis.example.employee">
+    <!--
+       id: sql语句唯一标志
+       resultType: 数据返回类型
+       如果数据库中的字段名跟java bean属性中的名字不同可以通过起别名的方式解决
+    -->
+    <select id="selectEmployee" resultType="com.beans.Employee">
+        select * from Employee where id = #{id}
+  </select>
+
+</mapper>

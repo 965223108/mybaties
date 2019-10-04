@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--
+       mybaties可以使用properties来引入外部properties配置文件的内容,引入之后通过${}的方式获取配置文件中的值
+       resource： 引入类路径下的文件
+       URL： 引入网络路径或者磁盘路径下的文件
+     -->
+    <properties resource = "dbconfig.properties"></properties>
+
+    <!--
+     setting 配置设置mybaties的运行特性：
+    -->
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="True"/>
+    </settings>
+    <!--别名处理器 ，为全类名起一个方便的别名，名字为默认类名小写 别名不区分大小写
+        typealias: 指定类的全类名
+        package: 指定包名，批量添加别名（也可以通过在类上标注：@Alias注解指定别名 ）
+
+    -->
+    <typeAliases>
+        <typeAlias type="com.beans.Employee" alias="emp"></typeAlias>
+        <package name=""></package>
+    </typeAliases>
+
+
+
+    <!--
+      environments: 配置mybaties的运行环境
+      default: 来指定使用的运行环境
+      transactionManager: 事务管理器  jdbc(jdbcTransactionFactory) managed(managedTransactionFactory)来 管理事务:必须有 也可以自定义管理器（实现ansactionFactory接口）
+      dataSource:数据源 unpooled pooled JNDI 必须有
+      自定义数据源： 实现DateSourceFactory接口
+    -->
+    <environments default="dev_mysql">
+        <environment id="dev_mysql">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+        <environment id="dev_oracle">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${postgresql.driver}"/>
+                <property name="url" value="${postgresql.url}"/>
+                <property name="username" value="${postgresql.username}"/>
+                <property name="password" value="${postgresql.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--
+     mybaties 支持不同的数据库
+     DB_VENDOR: 得到驱动厂商标识
+  -->
+    <databaseIdProvider type="DB_VENDOR">
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle" />
+    </databaseIdProvider>
+
+    <!--sql语句映射文件
+     resource : 指定类路径下的配置文件
+     URL： 指定网络路径或者磁盘路径下的配置文件
+     class： 指定绑定的接口 注意： 如果有SQL映射文件，则必须要求配置文件跟接口在同一个路径下且配置文件跟接口名相同 否则会绑定失败
+             正确的用法是： 在没有SQL映射文件的情况下，在接口上通过注解的方式标注SQL语句，然后在通过class属性引用即可
+     package :标签可以批量注册接口mapper
+     <mapper resource="employeeMapper.xml"/>
+    -->
+    <mappers>
+        <mapper resource="deparmentMapper.xml"/>
+        <mapper resource="employeeMapperByInterface.xml"></mapper>
+        <mapper resource="employeeExtendsMapper.xml"></mapper>
+        <mapper class="com.dao.DepartmentMapperAnnotation"/>
+    </mappers>
+</configuration>

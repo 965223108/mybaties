@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dao.DepartmentMapper">
+    <!--
+  此配置文件跟接口绑定：
+  namespaces: 指定绑定的接口
+  sql 语句中的id 指定：需要绑定接口中哪个方法
+
+
+  如果需要有返回值： 对于Integer Long boolean类型的返回值，只需把接口的返回值写成这种就可以了，其实本来是会返回影响的行数的
+
+    mybaties的参数处理：
+      1. 单个参数 ，不会做特殊处理（参数名随意都可以）： #{参数名}
+      2. 如果是多个参数,会做特殊处理，多个参数会被封装成一个Map
+         key: param1....paramn 或者arg0 ...argn ，另外 key值也可以自己定义，通过在接口方法参数列表中使用注解@Param("id") 来指定key值
+         value: 才是真正的参数
+        除此之外，如果参数比较多的情况下，可以使用POJO对象作为传参对象， 也可以将多个参数封装为一个Map进行传递，#{}就可以取POJO中的属性或则Map中的key值就可以了
+
+      几种场景：
+      public employee getEmp(@param("id")Integer id,@Param("lastname")String lastname)
+       取值： id  #{id},#{param1},#{arg1}
+    lastname  #{lastname},#{param2},#{arg2}
+    public employee getEmp(@param("id")Integer id,@Param("e")Employee emp)
+    取值： id  #{id},#{param1},#{arg1}
+    lastname  #{e.lastname},#{param2.lastname}
+
+    如果参数是一个Collection（List，Set）类型或则是数组，参数也会特殊处理，处理方式也是把传入的list或则数组封装到map中，
+    key就是小写的 类型名Collection（collection）,List(list) ,数组（array）
+    取值： id  #{list[0]}
+
+    -->
+    <select id="getDepartmentById" resultType="com.beans.Department" databaseId="mysql">
+        select * from Department where id = #{id}
+    </select>
+    <select id="getDepartmentByIdAndDepartment" resultType="com.beans.Department" >
+        select * from Department where id = #{arg0} and departmentName = #{arg1}
+    </select>
+    <!--如果需要返回一个List的集合，则只要用resultType 指定集合中的类型即可-->
+    <select id="getDeparmentLike" resultType="com.beans.Department">
+        select * from Department where departmentName like #{likeparam}
+    </select>
+    <!--如果需要返回一个map，则只要用resultType 为map 就可以了 map 是一个别名-->
+    <select id="getDepartmentByMap" resultType="map">
+       select * from Department where id = #{id}
+    </select>
+    <!--如果需要返回一个map，则只要用resultType 为map 就可以了 map 是一个别名-->
+    <select id="getDepartmentByReturnMap" resultType="com.beans.Department">
+       select * from Department where id = #{id}
+    </select>
+
+    <select id="getDepartmentById" resultType="com.beans.Department" databaseId="oracle">
+        select EMPLOYEE_ID id ,LAST_NAME lastName,EMAIL email from employees where EMPLOYEE_ID = #{id}
+    </select>
+
+    <insert id="addDepartment" parameterType="com.beans.Department" databaseId="oracle">
+        <selectKey keyProperty="id" databaseId="oracle" resultType="int" order="BEFORE" >
+            select test.questf
+        </selectKey>
+        select EMPLOYEE_ID id ,LAST_NAME lastName,EMAIL email from employees where EMPLOYEE_ID = #{id}
+    </insert>
+    <insert id="addDepartment" parameterType="com.beans.Department" useGeneratedKeys="true" keyProperty="id">
+        insert into Department(departmentName)
+        values(#{departmentName})
+    </insert>
+    <update id="updateDepartment" parameterType="com.beans.Department">
+        update Department set departmentName = #{departmentName} where id = #{id}
+    </update>
+    <delete id="deleteDepartment">
+        delete from Department where  id =#{id}
+    </delete>
+
+
+    <!--如果Java对象中存在List-->
+    <resultMap id="deployeewithemploy" type="com.beans.Department">
+        <id column="d_id" property="id"></id>
+        <result column="EmployeeList" property="departmentName"></result>
+        <collection property="departmentList" ofType="com.beans.Employee">
+            <id column="e_id" property="id"></id>
+            <result column="lastName" property="lastName"></result>
+            <result column="email" property="email"></result>
+            <result  column="gender" property="gender"></result>
+        </collection>
+    </resultMap>
+   <select id="getDepartmentWithEmployees" resultMap="deployeewithemploy">
+        select  e.id as e_id, d.id as d_id,e.lastName,e.email,e.gender,d.departmentName from Department d
+        LEFT JOIN  Employee e
+        on d.id = e.dId
+        where d.id =3
+   </select>
+
+</mapper>
