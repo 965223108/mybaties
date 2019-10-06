@@ -3,6 +3,14 @@
 
 <mapper namespace="com.beans.EmployeeDynamic">
     <!--
+       eviction:缓存的回收策略：
+       flushInterval：缓存刷新间隔，设置多长时间清空一次缓存，默认不清空，毫秒为单位
+       readonly: true表示缓存中的数据都是只读的，不会被修改，false 表示数据会被反序列化克隆一个数据
+       size: 缓存多少个数据
+       type: 指定自定义缓存的全类名，需要实现Cache接口
+    -->
+    <cache></cache>
+    <!--
         动态SQL：
         if:
         choose(where,otherwise)
@@ -123,9 +131,17 @@
             </foreach>
          )
     </select>
-    <!--批量添加-->
+    <!--批量添加
+     bind标签： 可以自定义一个变量
+    -->
     <insert id="addEmployees">
-        insert into Employee(lastName,email,gender,dId)
+        <bind name="_lastName" value="'%' + lastName + '%'"></bind>
+        insert into Employee
+        (
+            <include refid="profile">
+              <property name="testcloume" value="abc"></property><!--可以自定义属性，如果取值只能用${} 不能用#{}-->
+            </include>
+        )
         values
         <foreach collection="emps" item="emp" separator=",">
             (#{emp.lastName},#{emp.email},#{emp.gender},#{emp.dId})
@@ -134,6 +150,16 @@
     <!--
       两个重要的参数：
       _parameter: 代表整个参数
+      如果是单个参数：_parameter就是这个参数
+      如果是多个参数：会封装成一个map，这个map就是_parameter
 
+      _databaseId: 如果配置了databaseIdProvider标签，_databaseId就是代表当前数据库的别名
     -->
+
+    <!--
+       抽取公共的SQL语句,使用include可以引用
+    -->
+    <sql id="profile">
+        lastName,gender,email,dId,${testcloume}
+    </sql>
 </mapper>
