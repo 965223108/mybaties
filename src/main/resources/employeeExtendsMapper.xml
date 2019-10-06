@@ -108,4 +108,32 @@
         </set>
         where  id = #{id}
     </update>
+    <!--如果传递进来的参数是一个list
+     collection: 指定要遍历的集合
+     separator: 指定分隔符
+     open: 可以在前边添加一个前缀
+     close： 添加后缀
+     index： 如果遍历的是List，index就是索引（item就是值），如果是一个Map，index是key，item就是值
+    -->
+    <select id="getEmployeeByListId" resultType="com.beans.Employee">
+        select * from Employee where id in
+        (
+            <foreach collection="ids" item="id" separator=",">
+                #{id}
+            </foreach>
+         )
+    </select>
+    <!--批量添加-->
+    <insert id="addEmployees">
+        insert into Employee(lastName,email,gender,dId)
+        values
+        <foreach collection="emps" item="emp" separator=",">
+            (#{emp.lastName},#{emp.email},#{emp.gender},#{emp.dId})
+        </foreach>
+    </insert>
+    <!--
+      两个重要的参数：
+      _parameter: 代表整个参数
+
+    -->
 </mapper>
