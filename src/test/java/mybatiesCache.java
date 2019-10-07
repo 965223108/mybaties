@@ -12,7 +12,14 @@
  * namespace中的二级缓存中
  * 使用：
  *       全局配置文件中，开启缓存
- *       在mapper文件中，使用<cache></cache>标签
+ *       在mapper文件中，使用<cache></cache>标签，注意会话提交或者关闭之后，一级缓存中的 数据才会转移到二级缓存中
+ *       POJO需要序列化
+ * 缓存先关的属性：
+ *      1. CacheEnabled： true|false  控制二级缓存的开启
+ *      2. 每个select标签都有useCache=true|false 开启之后二级缓存生效，一级缓存不受影响
+ *      3. 每个增删改标签都有flushCache=true标签，执行完之后一级缓存和二级缓存都会清空缓存
+ *      4.查询标签中的属性flushCache=false，如果改为true，则缓存也会被清空
+ *      5.localCacheScope: 本地缓存作用域（一级缓存），改成STATEMEN可以关闭一级缓存
  */
 public class mybatiesCache {
 
