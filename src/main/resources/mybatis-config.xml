@@ -15,6 +15,7 @@
     -->
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="True"/>
+        <setting name="cacheEnabled" value="true"></setting>
     </settings>
     <!--别名处理器 ，为全类名起一个方便的别名，名字为默认类名小写 别名不区分大小写
         typealias: 指定类的全类名

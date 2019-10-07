@@ -20,6 +20,10 @@
  *      3. 每个增删改标签都有flushCache=true标签，执行完之后一级缓存和二级缓存都会清空缓存
  *      4.查询标签中的属性flushCache=false，如果改为true，则缓存也会被清空
  *      5.localCacheScope: 本地缓存作用域（一级缓存），改成STATEMEN可以关闭一级缓存
+ *
+ * 自定义缓存：
+ *      1. 实现mybaties提供的Cache接口
+ *      2. 在SQL配置文件中的<Cache type=""></Cache>指定自己的缓存控件即可
  */
 public class mybatiesCache {
 
